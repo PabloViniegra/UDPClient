@@ -12,27 +12,14 @@ public class Main {
         InetAddress inetAddress;
         File file = new File("hola.txt");
         ByteArrayOutputStream byteArrayOutputStream;
-        FileInputStream fileInputStream;
+        ObjectOutputStream objectOutputStream;
         try {
             datagramSocket = new DatagramSocket();
             inetAddress = InetAddress.getLocalHost();
-            fileInputStream = new FileInputStream(file);
             byteArrayOutputStream = new ByteArrayOutputStream();
-
-            byte[] buffer;
-
-            byte[] buf = new byte[1024];
-            try {
-                for (int readNum; (readNum = fileInputStream.read(buf)) != -1;) {
-                    byteArrayOutputStream.write(buf, 0, readNum); //no doubt here is 0
-                    //Writes len bytes from the specified byte array starting at offset off to this byte array output stream.
-                    System.out.println("read " + readNum + " bytes,");
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            buffer = byteArrayOutputStream.toByteArray();
+            objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(new Message("Hola soy tu padre"));
+            byte[] buffer=byteArrayOutputStream.toByteArray();
             DatagramPacket datagramPacket1 = new DatagramPacket(buffer, buffer.length, inetAddress, 8080);
             try {
                 datagramSocket.send(datagramPacket1);
@@ -41,6 +28,8 @@ public class Main {
             }
 
         } catch (SocketException | UnknownHostException | FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         assert datagramSocket != null;
